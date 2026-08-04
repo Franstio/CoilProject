@@ -17,7 +17,7 @@
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
-                {
+                 {
                     using var httpclient = httpClientFactory.CreateClient("Step2Api");
                     string url = this.configuration.GetSection("PIDSG:Rack_URL").Value!;
                     var res = await httpclient.GetAsync(url + "/Pending-List");
@@ -26,6 +26,10 @@
                 catch (Exception e)
                 {
                     logger.LogError(e.Message);
+                }
+                finally
+                {
+                    await Task.Delay(500);
                 }
             }
         }

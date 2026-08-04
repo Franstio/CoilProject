@@ -2,6 +2,6 @@
 {
     public class ScanContainerRequest
     {
-        public int containerId { get; set; }
+        public string containerId { get; set; } = string.Empty;
     }
 }

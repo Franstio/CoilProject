@@ -73,6 +73,16 @@ builder.Services.AddSignalR();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowCredentials()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+        policy.WithOrigins("http://localhost:3000");
+    });
+});
 
 var app = builder.Build();
 
@@ -84,6 +94,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 

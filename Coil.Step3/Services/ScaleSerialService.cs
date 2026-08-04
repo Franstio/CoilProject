@@ -50,10 +50,11 @@ namespace Coil.Step3.Services
                         continue;
                     string raw = parsed[parsed.Length - 1];
                     string formatted = raw.Replace("+", "").Replace("Kg", "");
-                    formatted = formatted.Substring(1, formatted.Length);
+                    formatted = formatted.Substring(1, formatted.Length-1);
                     logger.LogInformation(formatted);
+                    await _port.BaseStream.FlushAsync();
                     if (double.TryParse(formatted, out var weight))
-                        await scaleChannelWriter.Clients.All.SendScaleData(weight.ToString("0.00"));
+                        await scaleChannelWriter.Clients.All.SendScaleData( new Weight50Kg(weight.ToString("0.00")));
                 }
 
                 catch (Exception ex)

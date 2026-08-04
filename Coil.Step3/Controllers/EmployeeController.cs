@@ -23,7 +23,7 @@ namespace Coil.Step3.Controllers
             this.employeeSyncService = employeeSyncService;
         }
 
-        [HttpGet("/ScanBadgeid")]
+        [HttpPost("/ScanBadgeid")]
         public async Task<IActionResult> ScanBadgeId(ScanBadgeIdRequest req)
         {
             var usr = await employeeService.GetEmployee(req.badgeId);

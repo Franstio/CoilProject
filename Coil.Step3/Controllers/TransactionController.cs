@@ -45,8 +45,7 @@ namespace Coil.Step3.Controllers
             if (container is null)
             {
                 logger.LogError($"Container is not found (id: {req.containerId})");
-                return NotFound("Container not found");
-            }
+             }
             return Ok(new { container });
         }
         [HttpGet("/ping")]

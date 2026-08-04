@@ -45,6 +45,16 @@ namespace Coil.Step3.Services
             }, new { containerId = containerId }, splitOn: "id");
             return data.FirstOrDefault();
         }
+        public async Task<ContainerModel?> GetContainer(string containerId)
+        {
+            string query = "select containerid,c.name,station,weightbin,step2value,idWaste,w.id,w.name from container c inner join waste w on c.idWaste = w.id where c.name=@containerId";
+            var data = await dbConnection.QueryAsync<ContainerModel, WasteModel, ContainerModel>(query, (c, w) =>
+            {
+                c.Waste = w;
+                return c;
+            }, new { containerId = containerId }, splitOn: "id");
+            return data.FirstOrDefault();
+        }
         public async Task<IEnumerable<ContainerModel>> GetContainers()
         {
             string query = "select containerid,c.name,station,weightbin,step2value,idWaste,w.id,w.name from container c inner join waste w on c.idWaste = w.id";
