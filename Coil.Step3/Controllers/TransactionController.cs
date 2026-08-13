@@ -65,10 +65,10 @@ namespace Coil.Step3.Controllers
         }
 
         [HttpPost("/SaveTransaksi")]
-        public async Task<IActionResult> SaveTransaksi(IEnumerable<TransactionRequest> req)
+        public async Task<IActionResult> SaveTransaksi(TransactionRequest req)
         {
             List<TransactionModel> items = [];
-            foreach (var data in req)
+            foreach (var data in req.payload)
             {
                 try
                 {
@@ -85,24 +85,32 @@ namespace Coil.Step3.Controllers
         [HttpPost("/CheckBinCapacity")]
         public async Task<IActionResult> CheckBinCapacity(CheckBinAvailableRequest req)
         {
-            var doors = await rollingDoorService.GetRollingDoorByWaste(req.type_waste);
+            try
+            {
+                var doors = await rollingDoorService.GetRollingDoorByWaste(req.type_waste);
 
-            if (!doors.Any())
-            {
-                string message = $"Bin Not found with waste id: {req.type_waste}";
-                logger.LogError(message);
-                return Ok(new { success = false, message });
+                if (!doors.Any())
+                {
+                    string message = $"Bin Not found with waste id: {req.type_waste}";
+                    logger.LogError(message);
+                    return Ok(new { success = false, message });
+                }
+                var availableDoors = doors.Where(door => (door.weight + req.neto) <= door.max_weight).OrderByDescending(x => x.weight);
+                if (!availableDoors.Any())
+                {
+                    string message = $"No Bin that can hold {req.neto}";
+                    logger.LogError(message);
+                    return Ok(new { success = false, message });
+                }
+                var door = availableDoors.First();
+                await rollingDoorService.SetDoor(door.clientId, RollingDoorService.RollingDoorOption.OPEN);
+                return Ok(new { success = true, bin = door });
             }
-            var availableDoors = doors.Where(door => (door.weight + req.neto) <= door.max_weight).OrderByDescending(x => x.weight);
-            if (!availableDoors.Any())
+            catch (Exception e) 
             {
-                string message = $"No Bin that can hold {req.neto}";
-                logger.LogError(message);
-                return Ok(new { success = false, message });
+                logger.LogError(e.Message);
+                return StatusCode(500,e.Message);   
             }
-            var door = availableDoors.First();
-            await rollingDoorService.SetDoor(door.clientId, RollingDoorService.RollingDoorOption.OPEN);
-            return Ok(new { success = false, bin = door });
         }
         [HttpGet("/SyncPending")]
         public async Task<IActionResult> SyncPending()

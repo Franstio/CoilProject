@@ -1,7 +1,9 @@
 using Coil.Step3.Hubs;
 using Coil.Step3.Interfaces;
 using Coil.Step3.Models.Database;
+using Coil.Step3.Models.Settings;
 using Coil.Step3.Services;
+using Dapper;
 using MySql.Data.MySqlClient;
 using System.Data;
 
@@ -41,12 +43,14 @@ builder.Services.AddTransient<IDbConnection>(sp =>
 {
     var con = new MySqlConnection(builder.Configuration.GetConnectionString("M_DB"));
     con.Open();
+    string? timezone = builder.Configuration.GetSection("Timezone").Value;
+    con.ExecuteAsync($@"SET time_zone = '{timezone}';");
     return con;
 });
 builder.Services.AddScoped<TransactionService>();   
 builder.Services.AddScoped<RollingDoorService>();
 builder.Services.AddScoped<EmployeeService>();
-
+builder.Services.Configure<ModbusConfig>(builder.Configuration.GetSection("ModbusConfig"));
 builder.Services.AddSingleton<ModbusPLCService>();
 
 builder.Services.AddSingleton<TransactionSyncService>();
@@ -58,6 +62,8 @@ builder.Services.AddSingleton<ISyncService<TransactionModel>>(sp => sp.GetRequir
 builder.Services.AddSingleton<ISyncService<RollingDoorModel>>(sp => sp.GetRequiredService<RollingDoorSyncService>());
 builder.Services.AddSingleton<ISyncService<ContainerModel>>(sp => sp.GetRequiredService<ContainerSyncService>()); 
 builder.Services.AddSingleton<ISyncService<EmployeeModel>>(sp => sp.GetRequiredService<EmployeeSyncService>());
+
+builder.Services.AddSingleton<IStep4CheckService>(sp=>sp.GetRequiredService<TransactionSyncService>());
 
 builder.Services.AddHostedService(sp => sp.GetRequiredService<TransactionSyncService>());
 builder.Services.AddHostedService(sp => sp.GetRequiredService<RollingDoorSyncService>());

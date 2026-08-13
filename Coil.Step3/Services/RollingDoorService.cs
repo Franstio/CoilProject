@@ -1,5 +1,6 @@
 ﻿using Coil.Step3.Models.Database;
 using Coil.Step3.Models.ModbusPLC;
+using Coil.Step3.Models.Response;
 using Dapper;
 using System.Data;
 
@@ -41,6 +42,13 @@ namespace Coil.Step3.Services
             string query = "Select id,name,weight,type_waste,max_weight,clientId,last_empty from bin";
             return await dbConnection.QueryAsync<RollingDoorModel>(query);
         }
+        public async Task<IEnumerable<RollingDoorDisplayResponse>> GetRollingDoorDisplay()
+        {
+
+            string query = "Select row_number() over (order by id) as no, name,weight, max_weight as capacity from bin";
+            return await dbConnection.QueryAsync<RollingDoorDisplayResponse>(query);
+        }
+
         public async Task<IEnumerable<RollingDoorModel>> GetRollingDoor(string name)
         {
             string query = "Select id,name,weight,type_waste,max_weight,clientId,last_empty from bin where name=@name";
@@ -61,7 +69,7 @@ namespace Coil.Step3.Services
         {
 
             string query = "update bin set weight=@newweight where id=@binId";
-            await dbConnection.ExecuteAsync(query, new { newweight });
+            await dbConnection.ExecuteAsync(query, new { newweight,binId });
         }
         public async Task UpdateRollingDoorLastEmpty(string name, DateTime lastEmpty)
         {

@@ -19,9 +19,11 @@
                 try
                  {
                     using var httpclient = httpClientFactory.CreateClient("Step2Api");
-                    string url = this.configuration.GetSection("PIDSG:Rack_URL").Value!;
-                    var res = await httpclient.GetAsync(url + "/Pending-List");
-                    logger.LogInformation(await res.Content.ReadAsStringAsync());
+                    string[] urls = this.configuration.GetSection("PIDSG:Step2Api_URL").Get<string[]>()!;
+                    List<Task<HttpResponseMessage>> tasks = urls.Select(url => httpclient.GetAsync(url + "/Pending-List")).ToList();
+                    var results =  await Task.WhenAll(tasks);
+                    foreach (var result in results)
+                        logger.LogInformation(await result.Content.ReadAsStringAsync());
                 }
                 catch (Exception e)
                 {

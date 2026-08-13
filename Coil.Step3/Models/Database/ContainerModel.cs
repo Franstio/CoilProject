@@ -2,7 +2,7 @@
 {
     public class ContainerModel
     {
-        public int containerid { get; set; }
+        public int containerId { get; set; }
         public string name { get; set; } = string.Empty;
         public string station { get; set; } = string.Empty;
         public double weightbin { get; set; } 

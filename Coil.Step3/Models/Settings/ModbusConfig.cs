@@ -2,6 +2,6 @@
 {
     public class ModbusConfig
     {
-        public string ModbusPort { get; set; } = string.Empty;
+        public string ModbusPort { get; set; } = null!;
     }
 }

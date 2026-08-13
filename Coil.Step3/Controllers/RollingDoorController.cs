@@ -123,6 +123,7 @@ namespace Coil.Step3.Controllers
             await _rollingDoorService.SetDoor(door.clientId, RollingDoorService.RollingDoorOption.CLOSE);
             return Ok(new { msg = "ok" });
         }
+       
 
         [HttpGet("/bin-sync")]
         public async Task<IActionResult> binSync()
@@ -137,6 +138,12 @@ namespace Coil.Step3.Controllers
                 _logger.LogError(ex.Message + " | " + ex.StackTrace);
                 return StatusCode(500, new { msg = "error", error = ex.Message });
             }
+        }
+
+        [HttpGet("/door")]
+        public async Task<IActionResult> GetDoorDisplay()
+        {
+            return Ok(await _rollingDoorService.GetRollingDoorDisplay());
         }
     }
 }

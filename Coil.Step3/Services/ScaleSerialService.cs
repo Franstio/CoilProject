@@ -27,7 +27,7 @@ namespace Coil.Step3.Services
             _port.Parity = Parity.None;
             _port.StopBits = StopBits.One;
             _port.DataBits = 8;
-            _port.NewLine = "\n\t";
+            _port.NewLine = "\r";
         }
 
 
@@ -46,10 +46,8 @@ namespace Coil.Step3.Services
                     string data = _port.ReadLine();
                     logger.LogInformation(data);
                     string[] parsed = data.Split(",");
-                    if (parsed.Length < 2)
-                        continue;
                     string raw = parsed[parsed.Length - 1];
-                    string formatted = raw.Replace("+", "").Replace("Kg", "");
+                    string formatted = raw.Replace("Kg", "").Replace("+","").Replace("=","");
                     formatted = formatted.Substring(1, formatted.Length-1);
                     logger.LogInformation(formatted);
                     await _port.BaseStream.FlushAsync();
@@ -63,7 +61,8 @@ namespace Coil.Step3.Services
                 }
                 finally
                 {
-                    await Task.Delay(50);
+                    int interval = configuration.GetSection("ScaleConfig:Interval").Get<int>();
+                    await Task.Delay(interval,stoppingToken);
                 }
             }
         }

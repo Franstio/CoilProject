@@ -3,6 +3,7 @@ using Coil.Step3.Models.Requests;
 using Coil.Step3.Models.Response;
 using Dapper;
 using System.Data;
+using static Coil.Step3.Models.Requests.TransactionRequest;
 
 namespace Coil.Step3.Services
 {
@@ -47,7 +48,7 @@ namespace Coil.Step3.Services
         }
         public async Task<ContainerModel?> GetContainer(string containerId)
         {
-            string query = "select containerid,c.name,station,weightbin,step2value,idWaste,w.id,w.name from container c inner join waste w on c.idWaste = w.id where c.name=@containerId";
+            string query = "select containerId,c.name,station,weightbin,step2value,idWaste,w.id,w.name from container c inner join waste w on c.idWaste = w.id where c.name=@containerId";
             var data = await dbConnection.QueryAsync<ContainerModel, WasteModel, ContainerModel>(query, (c, w) =>
             {
                 c.Waste = w;
@@ -116,7 +117,7 @@ namespace Coil.Step3.Services
             @containerName, @binName, @binId, @status, @isSuccess, @loginDate
         );
         SELECT LAST_INSERT_ID();";
-                transactionModel.Id = await tr.Connection!.ExecuteScalarAsync<int>(query);
+                transactionModel.Id = await tr.Connection!.ExecuteScalarAsync<int>(query,transactionModel);
                 tr.Commit();
                 return transactionModel;
             }
@@ -127,7 +128,7 @@ namespace Coil.Step3.Services
                 throw;
             }
         }
-        public async Task<TransactionModel> SaveTransaksi(TransactionRequest req)
+        public async Task<TransactionModel> SaveTransaksi(TransactionRequestItem req)
         {
             var dt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             if (await CheckTransaction(req.idContainer))
@@ -154,8 +155,15 @@ namespace Coil.Step3.Services
 
         public void Dispose()
         {
-            dbConnection.Close();
-            dbConnection.Dispose();
+            try
+
+            {
+                dbConnection.Close();
+                dbConnection.Dispose();
+            }
+            catch (Exception ex)
+            {
+            }
         }
     }
 }
