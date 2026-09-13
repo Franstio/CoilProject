@@ -11,12 +11,14 @@ namespace Coil.Step3.Services
         private readonly IConfiguration configuration;
         private readonly IHubContext<ScalesHub,IScalesHub> scaleChannelWriter;
         private readonly ILogger<ScaleSerialService> logger;
+        private int interval = 100;
         public ScaleSerialService(IConfiguration config,IHubContext<ScalesHub,IScalesHub> scaleChannel,ILogger<ScaleSerialService> logger)
         {
             this.configuration  = config;
             this.logger = logger;
             scaleChannelWriter = scaleChannel;
             BuildSerialPort();
+            interval = configuration.GetSection("ScaleConfig:Interval").Get<int>();
         }
 
         void BuildSerialPort()
@@ -43,7 +45,9 @@ namespace Coil.Step3.Services
                 {
                     if (!_port.IsOpen)
                         _port.Open();
-                    string data = _port.ReadLine();
+                    string? data = _port.ReadExisting().Split("\r").FirstOrDefault();
+                    if (data is null)
+                        continue;
                     logger.LogInformation(data);
                     string[] parsed = data.Split(",");
                     string raw = parsed[parsed.Length - 1];
@@ -61,7 +65,6 @@ namespace Coil.Step3.Services
                 }
                 finally
                 {
-                    int interval = configuration.GetSection("ScaleConfig:Interval").Get<int>();
                     await Task.Delay(interval,stoppingToken);
                 }
             }

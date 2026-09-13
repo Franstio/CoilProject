@@ -133,7 +133,7 @@ namespace Coil.Step3.Services
             var dt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             if (await CheckTransaction(req.idContainer))
             {
-                throw new Exception("Transaction already exists in the last 1 minute.");
+                 throw new Exception("Transaction already exists in the last 1 minute.");
             }
             TransactionModel transactionModel = new TransactionModel()
             {

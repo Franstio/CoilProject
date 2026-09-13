@@ -5,6 +5,7 @@ using Coil.Step3.Services;
 using Google.Protobuf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Coil.Step3.Controllers
 {
@@ -65,6 +66,7 @@ namespace Coil.Step3.Controllers
         }
 
         [HttpPost("/SaveTransaksi")]
+        [EnableRateLimiting("FixedPolicy")]
         public async Task<IActionResult> SaveTransaksi(TransactionRequest req)
         {
             List<TransactionModel> items = [];
@@ -73,6 +75,14 @@ namespace Coil.Step3.Controllers
                 try
                 {
                     items.Add(await transactionService.SaveTransaksi(data));
+
+                    var doors = await rollingDoorService.GetRollingDoor(data.binId);
+                    if (!doors.Any())
+                        continue;
+                    var door = doors.First();
+                    door.weight = data.neto + door.weight;
+                    await rollingDoorService.UpdateRollingDoorBinWeight(door.id, door.weight);
+                    await rollingDoorService.SetDoor(door.clientId, RollingDoorService.RollingDoorOption.CLOSE);
                 }
                 catch (Exception e)
                 {

@@ -117,10 +117,10 @@ namespace Coil.Step3.Controllers
                 _logger.LogError($"Bin Not Found {req.binId} {req.neto}");
                 return NotFound("Bin Not Found");
             }
-            var door = doors.First();
-            door.weight = req.neto + door.weight;
-            await _rollingDoorService.UpdateRollingDoorBinWeight(door.id, door.weight);
-            await _rollingDoorService.SetDoor(door.clientId, RollingDoorService.RollingDoorOption.CLOSE);
+            //var door = doors.First();
+            //door.weight = req.neto + door.weight;
+            //await _rollingDoorService.UpdateRollingDoorBinWeight(door.id, door.weight);
+            //await _rollingDoorService.SetDoor(door.clientId, RollingDoorService.RollingDoorOption.CLOSE);
             return Ok(new { msg = "ok" });
         }
        
