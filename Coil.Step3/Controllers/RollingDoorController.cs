@@ -55,13 +55,13 @@ namespace Coil.Step3.Controllers
             var rollingDoor = await _rollingDoorService.GetRollingDoor(req.name);
             if (rollingDoor is null || !rollingDoor.Any())
                 return NotFound("Rolling Door Not Found");
-            RollingDoorService.RollingDoorOption option = req.doorStatus == 1 ? RollingDoorService.RollingDoorOption.OPEN : RollingDoorService.RollingDoorOption.CLOSE;
+            RollingDoorService.RollingDoorOption option = req.doorStatus ? RollingDoorService.RollingDoorOption.OPEN : RollingDoorService.RollingDoorOption.CLOSE;
             if (option == RollingDoorService.RollingDoorOption.CLOSE)
             {
                 await _step4CheckService.Step4Check(req.name);
             }
             await _rollingDoorService.SetDoor(rollingDoor.First().clientId, option);
-            return Ok(new RollingDoorResponse { msg = $"Rolling Door {(req.doorStatus == 1 ? "Buka" : "Tutup")}", clientId = rollingDoor.First().clientId, address = (ushort)option, value = 1 }); ;
+            return Ok(new RollingDoorResponse { msg = $"Rolling Door {(req.doorStatus ? "Buka" : "Tutup")}", clientId = rollingDoor.First().clientId, address = (ushort)option, value = 1 }); ;
         }
 
         [HttpGet("/step4-check/{binname}")]

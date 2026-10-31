@@ -64,18 +64,18 @@ namespace Coil.Step3.Services
                 c.Waste = w;
                 return c;
             }, splitOn: "id");
-            return data;
+            return data.ToList();
 
         }
         public async Task<IEnumerable<TransactionModel>> GetReadyOrPendingTransaction()
         {
             string query = "Select t.id,t.badgeId,t.status,t.isSuccess,t.containerName,t.binName,t.neto,t.recordDate,t.loginDate,c.containerid,c.weightbin,c.step2value from transaction t left join container c on t.idContainer=c.containerId where (t.status like '%PENDING%' or t.status='READY') and  t.id not in (select id_transaction from log_record);";
-            var data = dbConnection.QueryAsync<TransactionModel, ContainerModel, TransactionModel>(query, (t, c) =>
+            var data = await dbConnection.QueryAsync<TransactionModel, ContainerModel, TransactionModel>(query, (t, c) =>
             {
                 t.Container = c;
                 return t;
             }, splitOn: "containerId");
-            return await data;
+            return data.ToList();
 
         }
         public async Task UpdateTransactionStatus(TransactionModel transaction)

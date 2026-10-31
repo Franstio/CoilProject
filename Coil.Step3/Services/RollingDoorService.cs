@@ -74,7 +74,7 @@ namespace Coil.Step3.Services
         public async Task UpdateRollingDoorLastEmpty(string name, DateTime lastEmpty)
         {
 
-            string query = "update bin set last_empty=@lastEmpty where name=@name";
+            string query = "update bin set last_empty=@lastEmpty,weight=0 where name=@name";
             await dbConnection.ExecuteAsync(query, new { lastEmpty = lastEmpty.ToString("yyyy-MM-dd HH:mm:ss"), name });
         }   
         public async Task<IEnumerable<RollingDoorModel>> GetRollingDoorWithContainerStation()

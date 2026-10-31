@@ -2,7 +2,7 @@
 {
     public class Step4ActivedDoorRequest
     {
-        public int doorStatus { get; set; }
+        public bool doorStatus { get; set; }
         public string name { get; set;  } = string.Empty;
     }
 }

@@ -10,7 +10,10 @@ using System.Data;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Listen(IPAddress.Any, 5000); // Or use specific ports like 5001 for HTTPS
+});
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -103,7 +106,7 @@ builder.Services.AddCors(options =>
         policy.AllowCredentials()
               .AllowAnyMethod()
               .AllowAnyHeader();
-        policy.WithOrigins("http://localhost:3000");
+        policy.WithOrigins("http://localhost:3000","http://localhost","http://127.0.0.1","http://10.89.1.226","http://10.89.1.99");
     });
 });
 
